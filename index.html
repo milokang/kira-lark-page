@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kira - sign-in code</title>
+<style>
+  :root { --bg: #f4f5f8; --card: #ffffff; --fg: #1d2330; --muted: #5c6575; --accent: #3370ff; --line: #dfe3ea; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #14171d; --card: #1d222b; --fg: #e8ebf0; --muted: #9aa3b2; --accent: #7aa2ff; --line: #2e3542; } }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  main { max-width: 440px; margin: 0 auto; padding: 40px 18px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 24px 20px; }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  p { color: var(--muted); line-height: 1.55; margin: 0 0 14px; }
+  .code { font-family: ui-monospace, Consolas, monospace; font-size: 15px; word-break: break-all; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin: 6px 0 14px; user-select: all; }
+  button { width: 100%; font-size: 16px; padding: 12px; border: 0; border-radius: 10px; background: var(--accent); color: #fff; }
+  .zh { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<main>
+  <div class="card" id="ok" hidden>
+    <h1>Almost done</h1>
+    <p>Copy this code and send it to <b>Kira</b> in your Lark chat.</p>
+    <div class="code" id="code"></div>
+    <button id="copy" type="button">Copy code</button>
+    <p class="zh">复制这串代码，回到 Lark 贴给 <b>Kira</b> 就完成了。代码几分钟内有效，只能用一次。</p>
+  </div>
+  <div class="card" id="no" hidden>
+    <h1>Not signed in</h1>
+    <p id="why">Nothing was allowed. Go back to Lark and tap the link Kira sent to try again.</p>
+    <p class="zh">没有授权。回到 Lark 再按一次 Kira 给的连结即可。</p>
+  </div>
+</main>
+<script>
+  var q = new URLSearchParams(location.search);
+  var code = q.get("code");
+  if (code) {
+    document.getElementById("code").textContent = code;
+    document.getElementById("ok").hidden = false;
+    document.getElementById("copy").onclick = function () {
+      var b = this;
+      function done() { b.textContent = "Copied - paste it in Lark / 已复制"; }
+      if (navigator.clipboard) { navigator.clipboard.writeText(code).then(done, function () { select(); }); } else { select(); }
+      function select() { var r = document.createRange(); r.selectNodeContents(document.getElementById("code")); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+    };
+  } else {
+    document.getElementById("no").hidden = false;
+    if (q.get("error") && q.get("error") !== "access_denied") { document.getElementById("why").textContent = "Lark said: " + q.get("error"); }
+  }
+</script>
+</body>
+</html>
